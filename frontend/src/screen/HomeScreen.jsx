@@ -12,7 +12,7 @@ const HomeScreen = () => {
   };
 
   const handlSignup = () => {
-    navigation.navigate('SINGUP');
+    navigation.navigate('SIGNUP');
   };
   return (
     <View style={styles.container}>

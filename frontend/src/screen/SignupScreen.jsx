@@ -1,4 +1,5 @@
 import {
+  Image,
   StyleSheet,
   Text,
   TextInput,
@@ -59,7 +60,7 @@ const SignupScreen = () => {
         </View>
 
         <View style={styles.inputContainer}>
-          <Ionicons
+          <SimpleLineIcons
             name={'screen-smartphone'}
             size={30}
             color={colors.secondary}
