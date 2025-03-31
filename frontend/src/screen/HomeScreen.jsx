@@ -13,18 +13,18 @@ const HomeScreen = () => {
   return (
     <View style={styles.container}>
       <Image source={require('../assets/logo.png')} style={styles.logo} />
-      <Image source={require('../assets/image.png')} style={styles.banner} />
+      <Image source={require('../assets/banner.png')} style={styles.banner} />
       <Text style={styles.title}>Ouch? We Got You.</Text>
       <Text style={styles.subtitle}>
-        We'll tell you if it's a 'Netflix and chill' situation, or a 'doctor and
-        bill' situation...
+        We'll tell you if it's a 'Netflix and chill' or a 'doctor and bill'
+        situation...
       </Text>
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={[
             styles.loginButtonWrapper,
             {
-              backgroundColor: colors.primary,
+              backgroundColor: colors.black,
             },
           ]}
           onPress={handleLogin}>
@@ -56,12 +56,12 @@ const styles = StyleSheet.create({
     width: '90%',
   },
   title: {
-    fontSize: 40,
+    fontSize: 35,
     fontFamily: fonts.SemiBold,
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
     textAlign: 'center',
     color: colors.primary,
-    marginTop: 20,
+    marginTop: 10,
   },
   subtitle: {
     fontSize: 20,
