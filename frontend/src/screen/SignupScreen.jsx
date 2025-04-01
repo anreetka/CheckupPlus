@@ -1,4 +1,5 @@
 import {
+  Alert,
   Image,
   StyleSheet,
   Text,
@@ -6,29 +7,103 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import {useNavigation} from '@react-navigation/native';
 import {colors} from '../utils/colors';
 import {fonts} from '../utils/font';
+import auth from '@react-native-firebase/auth';
+import {GoogleSignin} from '@react-native-google-signin/google-signin';
+import {WEB_CLIENT_ID} from '@env';
 
 const SignupScreen = () => {
   const navigation = useNavigation();
+
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
   const [secureEntery, setSecureEntery] = useState(true);
+
   const handleGoBack = () => {
     navigation.goBack();
   };
   const handleLogin = () => {
     navigation.navigate('LOGIN');
   };
+
+  useEffect(() => {
+    GoogleSignin.configure({
+      webClientId: WEB_CLIENT_ID,
+    });
+  }, []);
+
+  const handleGoogleLogin = async () => {
+    try {
+      const {idToken} = await GoogleSignin.signIn();
+      const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+      await auth().signInWithCredential(googleCredential);
+
+      Alert.alert('Success', 'Logged in with Google!');
+      navigation.navigate('WELCOME');
+    } catch (error) {
+      Alert.alert('Error', error.message || 'Failed to log in with Google.');
+    }
+  };
+
+  const signup = async () => {
+    if (!email || !password) {
+      Alert.alert('All fields are required!');
+      return;
+    }
+
+    try {
+      const userCredential = await auth().createUserWithEmailAndPassword(
+        email,
+        password,
+      );
+
+      Alert.alert(
+        'Success',
+        'Account created successfully! Please verify your email.',
+      );
+
+      const user = userCredential.user;
+      if (user) {
+        await user.sendEmailVerification();
+        navigation.navigate('LOGIN');
+      }
+    } catch (err) {
+      if (err?.code) {
+        switch (err.code) {
+          case 'auth/email-already-in-use':
+            Alert.alert('Error', 'This email is already in use.');
+            break;
+          case 'auth/invalid-email':
+            Alert.alert('Error', 'Invalid email format.');
+            break;
+          case 'auth/weak-password':
+            Alert.alert(
+              'Error',
+              'Weak password. Use at least 6 characters with a mix of letters and numbers.',
+            );
+            break;
+          default:
+            Alert.alert('Error', 'Something went wrong. Please try again.');
+        }
+      } else {
+        Alert.alert('Error', err.message || 'Unknown error occurred.');
+      }
+    }
+  };
+
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.backButtonWrapper} onPress={handleGoBack}>
         <Ionicons name={'arrow-back-outline'} color={colors.black} size={25} />
       </TouchableOpacity>
       <View style={styles.textContainer}>
-        <Text style={styles.headingText}>Let's get,</Text>
+        <Text style={styles.headingText}>Let's get</Text>
         <Text style={styles.headingText}>started</Text>
       </View>
 
@@ -40,6 +115,7 @@ const SignupScreen = () => {
             placeholder="Enter your email"
             placeholderTextColor={colors.secondary}
             keyboardType="email-address"
+            onChangeText={text => setEmail(text)}
           />
         </View>
 
@@ -50,6 +126,7 @@ const SignupScreen = () => {
             placeholder="Enter your password"
             placeholderTextColor={colors.secondary}
             secureTextEntry={secureEntery}
+            onChangeText={text => setPassword(text)}
           />
           <TouchableOpacity
             onPress={() => {
@@ -59,25 +136,13 @@ const SignupScreen = () => {
           </TouchableOpacity>
         </View>
 
-        <View style={styles.inputContainer}>
-          <SimpleLineIcons
-            name={'screen-smartphone'}
-            size={30}
-            color={colors.secondary}
-          />
-          <TextInput
-            style={styles.textInput}
-            placeholder="Enter your phone number"
-            placeholderTextColor={colors.secondary}
-            keyboardType="phone-pad"
-          />
-        </View>
-
-        <TouchableOpacity style={styles.loginButtonWrapper}>
+        <TouchableOpacity style={styles.loginButtonWrapper} onPress={signup}>
           <Text style={styles.loginText}>Sign up</Text>
         </TouchableOpacity>
         <Text style={styles.continueText}>or continue with</Text>
-        <TouchableOpacity style={styles.googleButtonContainer}>
+        <TouchableOpacity
+          style={styles.googleButtonContainer}
+          onPress={handleGoogleLogin}>
           <Image
             source={require('../assets/google.png')}
             style={styles.googleImage}

@@ -1,8 +1,9 @@
 import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import React from 'react';
+import React, {useEffect} from 'react';
 import {colors} from '../utils/colors';
 import {fonts} from '../utils/font';
 import {useNavigation} from '@react-navigation/native';
+import auth from '@react-native-firebase/auth';
 
 const HomeScreen = () => {
   const navigation = useNavigation();
@@ -14,6 +15,18 @@ const HomeScreen = () => {
   const handlSignup = () => {
     navigation.navigate('SIGNUP');
   };
+
+  useEffect(() => {
+    const checkUserLogin = () => {
+      const user = auth().currentUser;
+
+      if (user) {
+        navigation.navigate('WELCOME');
+      }
+    };
+    checkUserLogin();
+  }, [navigation]);
+
   return (
     <View style={styles.container}>
       <Image source={require('../assets/logo.png')} style={styles.logo} />
